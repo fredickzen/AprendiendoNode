@@ -52,7 +52,13 @@ var controller = {
 
             article.title = params.title;
             article.content = params.content;
-            article.image = null;
+            if (params.image) {
+                article.image = params.image;    
+            }
+            else{
+                article.image = null;    
+            }
+            
 
             // Guardar Artículo
             article.save((err, articleStored) => {
@@ -271,27 +277,38 @@ var controller = {
         else {
             // Buscar artículo y asignar fichero
             var articleId = req.params.id;
-            Article.findByIdAndUpdate({ _id: articleId }, { image: file_name }, { new: true }, (err, articleUpdated) => {
-                if (err) {
-                    return res.status(500).send({
-                        status: 'error',
-                        message: 'Error al actualizar la imágen de artículo'
-                    });
-                }
-                if (!articleUpdated) {
-                    return res.status(404).send({
-                        status: 'error',
-                        message: 'No existe el artículo'
-                    });
-                }
+            if (articleId) {
+                Article.findByIdAndUpdate({ _id: articleId }, { image: file_name }, { new: true }, (err, articleUpdated) => {
+                    if (err) {
+                        return res.status(500).send({
+                            status: 'error',
+                            message: 'Error al actualizar la imágen de artículo'
+                        });
+                    }
+                    if (!articleUpdated) {
+                        return res.status(404).send({
+                            status: 'error',
+                            message: 'No existe el artículo'
+                        });
+                    }
+                    return res.status(200).send(
+                        {
+                            status: 'success',
+                            article: articleUpdated
+
+                        }
+                    );
+                });
+            }
+            else {
                 return res.status(200).send(
                     {
                         status: 'success',
-                        article: articleUpdated
+                        image: file_name
 
-                    }
-                );
-            });
+                    });
+            }
+
         }
     },
     getImage: (req, res) => {
